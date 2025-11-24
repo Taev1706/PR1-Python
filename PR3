@@ -141,8 +141,3 @@ def glavnaya():
                 print("Пожалуйста, введите 'да' или 'нет'.")
 
 glavnaya()
-home = C:\Users\korot\AppData\Local\Programs\Python\Python313
-include-system-site-packages = false
-version = 3.13.7
-executable = C:\Users\korot\AppData\Local\Programs\Python\Python313\python.exe
-command = C:\Users\korot\AppData\Local\Programs\Python\Python313\python.exe -m venv C:\Users\korot\OneDrive\Desktop\Python\PR3
