@@ -1,0 +1,148 @@
+import random
+import os
+
+def sozdat_stats_fail():
+    if not os.path.exists('stats'):
+        os.makedirs('stats')
+    if not os.path.exists('stats/stats.txt'):
+        with open('stats/stats.txt', 'w', encoding='utf-8') as f:
+            f.write("Игры: 0\nПобеды X: 0\nПобеды O: 0\nНичьи: 0\n")
+
+def sohranit_statistiku(igry, pobedy_x, pobedy_o, nichyi):
+    with open('stats/stats.txt', 'w', encoding='utf-8') as f:
+        f.write(f"Игры: {igry}\n")
+        f.write(f"Победы X: {pobedy_x}\n")
+        f.write(f"Победы O: {pobedy_o}\n")
+        f.write(f"Ничьи: {nichyi}\n")
+
+def zagruzit_statistiku():
+    try:
+        with open('stats/stats.txt', 'r', encoding='utf-8') as f:
+            stroki = f.readlines()
+            igry = int(stroki[0].split(': ')[1])
+            pobedy_x = int(stroki[1].split(': ')[1])
+            pobedy_o = int(stroki[2].split(': ')[1])
+            nichyi = int(stroki[3].split(': ')[1])
+            return igry, pobedy_x, pobedy_o, nichyi
+    except (FileNotFoundError, IndexError, ValueError):
+        return 0, 0, 0, 0
+
+def pokazat_pole(pole, razmer):
+    zagolovok = '  ' + ' '.join(str(i) for i in range(1, razmer + 1))
+    print(zagolovok)
+    for i in range(razmer):
+        ryad_simvolov = []
+        for j in range(razmer):
+            if pole[i][j] == '':
+                ryad_simvolov.append('.')
+            else:
+                ryad_simvolov.append(pole[i][j])
+        print(f"{i + 1} {' '.join(ryad_simvolov)}")
+
+def proverit_pobeditelya(pole, razmer):
+    for i in range(razmer):
+        if pole[i][0] != '' and all(pole[i][j] == pole[i][0] for j in range(razmer)):
+            return pole[i][0]
+    for j in range(razmer):
+        if pole[0][j] != '' and all(pole[i][j] == pole[0][j] for i in range(razmer)):
+            return pole[0][j]
+    if pole[0][0] != '' and all(pole[i][i] == pole[0][0] for i in range(razmer)):
+        return pole[0][0]
+    if pole[0][razmer - 1] != '' and all(pole[i][razmer - 1 - i] == pole[0][razmer - 1] for i in range(razmer)):
+        return pole[0][razmer - 1]
+    return None
+
+def proverit_nichyu(pole, razmer):
+    for i in range(razmer):
+        for j in range(razmer):
+            if pole[i][j] == '':
+                return False
+    return True
+
+def igrat_igru():
+    igry, pobedy_x, pobedy_o, nichyi = zagruzit_statistiku()
+
+    while True:
+        try:
+            vvod_razmera = input("Введите размер игрового поля (от 3 до 9): ")
+            razmer = int(vvod_razmera)
+            if 3 <= razmer <= 9:
+                break
+            else:
+                print("Некорректный размер. Введите число от 3 до 9.")
+        except ValueError:
+            print("Некорректный ввод. Пожалуйста, введите число.")
+
+    pole = [['' for _ in range(razmer)] for _ in range(razmer)]
+    tekushchiy_igrok = random.choice(['X', 'O'])
+
+    pokazat_pole(pole, razmer)
+
+    while True:
+        print(f"Ход игрока {tekushchiy_igrok}. Введите строку и столбец (например: 1 2): ", end='')
+
+        try:
+            vvod_hoda = input().strip()
+            chasti = vvod_hoda.split()
+
+            if len(chasti) != 2:
+                print("Неверный формат. Введите два числа через пробел.")
+                continue
+
+            stroka = int(chasti[0]) - 1
+            stolbets = int(chasti[1]) - 1
+
+            if not (0 <= stroka < razmer and 0 <= stolbets < razmer):
+                print(f"Некорректные координаты. Введите числа от 1 до {razmer}.")
+                continue
+
+            if pole[stroka][stolbets] != '':
+                print("Эта клетка уже занята. Выберите другую.")
+                continue
+
+            pole[stroka][stolbets] = tekushchiy_igrok
+            pokazat_pole(pole, razmer)
+
+            pobeditel = proverit_pobeditelya(pole, razmer)
+            if pobeditel:
+                print(f"Игрок {pobeditel} победил!")
+                if pobeditel == 'X':
+                    pobedy_x += 1
+                else:
+                    pobedy_o += 1
+                igry += 1
+                sohranit_statistiku(igry, pobedy_x, pobedy_o, nichyi)
+                break
+
+            if proverit_nichyu(pole, razmer):
+                print("Ничья!")
+                nichyi += 1
+                igry += 1
+                sohranit_statistiku(igry, pobedy_x, pobedy_o, nichyi)
+                break
+
+            tekushchiy_igrok = 'O' if tekushchiy_igrok == 'X' else 'X'
+
+        except ValueError:
+            print("Неверный ввод. Введите два числа через пробел.")
+
+def glavnaya():
+    sozdat_stats_fail()
+    while True:
+        igrat_igru()
+        while True:
+            povtor = input("Хотите сыграть ещё раз? (да/нет): ").strip().lower()
+            if povtor in ['да']:
+                break
+            elif povtor in ['нет']:
+                print("Спасибо за игру!")
+                return
+            else:
+                print("Пожалуйста, введите 'да' или 'нет'.")
+
+glavnaya()
+home = C:\Users\korot\AppData\Local\Programs\Python\Python313
+include-system-site-packages = false
+version = 3.13.7
+executable = C:\Users\korot\AppData\Local\Programs\Python\Python313\python.exe
+command = C:\Users\korot\AppData\Local\Programs\Python\Python313\python.exe -m venv C:\Users\korot\OneDrive\Desktop\Python\PR3
