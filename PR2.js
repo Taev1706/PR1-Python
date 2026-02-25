@@ -1,163 +1,253 @@
-// Объект управления приложением
-const expenseTracker = {
-    expenses: [],
-    nextId: 1,
+let expenses = [];
+let nextId = 1;
 
-    // Добавление расхода
-    addExpense: function (title, amount, category) {
-        if (!title || typeof title !== 'string') {
-            console.log("Название должно быть строкой.");
-            return;
+function addExpense(title, amount, category) {
+    if (title == "" || title == null) {
+        alert("Название пустое");
+        return false;
+    }
+    if (amount <= 0 || isNaN(amount)) {
+        alert("Сумма должна быть числом и больше 0");
+        return false;
+    }
+    if (category == "" || category == null) {
+        alert("Категория пустая");
+        return false;
+    }
+
+    let expense = {
+        id: nextId,
+        title: title,
+        amount: Number(amount),
+        category: category
+    };
+
+    expenses.push(expense);
+    nextId++;
+    alert("Расход добавлен: " + title + " - " + amount + " руб. (" + category + ")");
+    return true;
+}
+
+function printAllExpenses() {
+    let output = "";
+    if (expenses.length == 0) {
+        output += "Список пуст";
+        alert(output);
+        return;
+    }
+    for (let i = 0; i < expenses.length; i++) {
+        let e = expenses[i];
+        output += "ID: " + e.id + " | " + e.title + " | " + e.amount + " руб. | " + e.category + "\n";
+    }
+    alert(output);
+}
+
+function getTotalAmount() {
+    let total = 0;
+    for (let i = 0; i < expenses.length; i++) {
+        total = total + expenses[i].amount;
+    }
+    alert("ЧЕК\nВсего потрачено: " + total + " руб.");
+    return total;
+}
+
+function getExpensesByCategory(category) {
+    let result = [];
+    let sum = 0;
+    for (let i = 0; i < expenses.length; i++) {
+        if (expenses[i].category == category) {
+            result.push(expenses[i]);
+            sum = sum + expenses[i].amount;
         }
-        if (typeof amount !== 'number' || amount <= 0) {
-            console.log("Сумма должна быть положительным числом.");
-            return;
-        }
-        if (!category || typeof category !== 'string') {
-            console.log("Категория обязательна.");
-            return;
-        }
+    }
+    let output = "Категория: " + category + "\n";
+    if (result.length == 0) {
+        output += "Нет расходов в этой категории";
+        alert(output);
+        return [];
+    }
+    for (let j = 0; j < result.length; j++) {
+        output += " - " + result[j].title + ": " + result[j].amount + " руб.\n";
+    }
+    output += "\nИтого по категории: " + sum + " руб. (" + result.length + " операций)";
+    alert(output);
+    return result;
+}
 
-        const newExpense = {
-            id: this.nextId,
-            title: title,
-            amount: amount,
-            category: category
-        };
-
-        this.nextId++;
-        this.expenses.push(newExpense);
-        console.log("Расход добавлен: " + title);
-    },
-
-    // Вывод всех расходов
-    printAllExpenses: function () {
-        console.log("Список всех расходов:");
-        if (this.expenses.length === 0) {
-            console.log("Список пуст.");
-            return;
-        }
-        for (let i = 0; i < this.expenses.length; i++) {
-            let item = this.expenses[i];
-            console.log("ID: " + item.id + " | " + item.title + " - " + item.amount + " руб. (" + item.category + ")");
-        }
-    },
-
-    // Подсчёт общего баланса
-    getTotalAmount: function () {
-        let total = 0;
-        for (let i = 0; i < this.expenses.length; i++) {
-            total += this.expenses[i].amount;
-        }
-        console.log("ЧЕК: Общий баланс расходов: " + total + " руб.");
-        return total;
-    },
-
-    // Фильтрация по категории
-    getExpensesByCategory: function (category) {
-        console.log("Поиск категории: " + category);
-        let foundItems = [];
-        let categorySum = 0;
-
-        for (let i = 0; i < this.expenses.length; i++) {
-            if (this.expenses[i].category === category) {
-                foundItems.push(this.expenses[i]);
-                categorySum += this.expenses[i].amount;
-            }
-        }
-
-        if (foundItems.length === 0) {
-            console.log("Расходов в этой категории не найдено.");
-            return [];
-        }
-
-        for (let i = 0; i < foundItems.length; i++) {
-            console.log("- " + foundItems[i].title + ": " + foundItems[i].amount + " руб.");
-        }
-        console.log("Итого на категорию '" + category + "' потрачено: " + categorySum + " руб.");
-
-        return foundItems;
-    },
-
-    // Поиск расхода
-    findExpenseByTitle: function (searchString) {
-        console.log("Поиск по названию: " + searchString);
-
-        for (let i = 0; i < this.expenses.length; i++) {
-            if (this.expenses[i].title.includes(searchString)) {
-                console.log("Найдено:", this.expenses[i]);
-                console.log(">> Вы можете добавить заметку к этому расходу.");
-                return this.expenses[i];
-            }
-        }
-
-        console.log("Ничего не найдено.");
+function findExpenseByTitle(search) {
+    if (search == "" || search == null) {
+        alert("Строка поиска не может быть пустой");
         return null;
+    }
+    for (let i = 0; i < expenses.length; i++) {
+        if (expenses[i].title.indexOf(search) != -1) {
+            let output = "Найдено:\n";
+            output += "  ID: " + expenses[i].id + "\n";
+            output += "  Название: " + expenses[i].title + "\n";
+            output += "  Сумма: " + expenses[i].amount + " руб.\n";
+            output += "  Категория: " + expenses[i].category;
+
+            alert(output);
+
+            let note = prompt("Хотите добавить заметку к этому расходу? (введите текст или нажмите Отмена)");
+            if (note != null && note != "") {
+                if (expenses[i].note == null) {
+                    expenses[i].note = [];
+                }
+                expenses[i].note.push(note);
+                alert("Заметка добавлена: " + note);
+            }
+            return expenses[i];
+        }
+    }
+    alert("Ничего не найдено по запросу: " + search);
+    return null;
+}
+
+let expenseTracker = {
+    expenses: expenses,
+
+    addExpense: function (title, amount, category) {
+        return addExpense(title, amount, category);
     },
 
-    // Удаление по ID
-    deleteExpense: function (id) {
-        for (let i = 0; i < this.expenses.length; i++) {
-            if (this.expenses[i].id === id) {
-                this.expenses.splice(i, 1);
-                console.log("Расход с ID " + id + " удален.");
+    getTotalAmount: function () {
+        return getTotalAmount();
+    },
+
+    getExpensesByCategory: function (category) {
+        return getExpensesByCategory(category);
+    },
+
+    findExpenseByTitle: function (search) {
+        return findExpenseByTitle(search);
+    },
+
+    deleteExpenseById: function (id) {
+        for (let i = 0; i < expenses.length; i++) {
+            if (expenses[i].id == id) {
+                alert("Удалён расход: " + expenses[i].title + " (ID: " + id + ")");
+                expenses.splice(i, 1);
                 return true;
             }
         }
-        console.log("Расход с ID " + id + " не найден.");
+        alert("Расход с ID " + id + " не найден");
         return false;
     },
 
-    // Статистика по категориям
-    getCategoryStats: function () {
-        console.log("Статистика по категориям:");
+    printCategoryStats: function () {
+        let output = "";
+        if (expenses.length == 0) {
+            output += "Нет данных для статистики";
+            alert(output);
+            return;
+        }
         let stats = {};
-
-        for (let i = 0; i < this.expenses.length; i++) {
-            let cat = this.expenses[i].category;
-            let amount = this.expenses[i].amount;
-
-            if (!stats[cat]) {
+        for (let i = 0; i < expenses.length; i++) {
+            let cat = expenses[i].category;
+            let amount = expenses[i].amount;
+            if (stats[cat] == null) {
                 stats[cat] = 0;
             }
-            stats[cat] += amount;
+            stats[cat] = stats[cat] + amount;
         }
-
         for (let cat in stats) {
-            console.log(cat + ": " + stats[cat] + " руб.");
+            output += cat + ": " + stats[cat] + " руб.\n";
         }
+        output += "Всего категорий: " + Object.keys(stats).length;
+        alert(output);
     }
 };
 
-// Добавляем расходы
-expenseTracker.addExpense("стим дек", 48000, "Игры");
-expenseTracker.addExpense("деф стрендинг 2", 5000, "Игры");
-expenseTracker.addExpense("форза хорайзон 5", 5000, "Игры");
-expenseTracker.addExpense("Тортик", 800, "Еда");
-expenseTracker.addExpense("Мафин", 300, "Еда");
-expenseTracker.addExpense("Ручка", 100, "Концтовары");
-expenseTracker.addExpense("Карандаш", 50, "Концтовары");
+function getNumber(message) {
+    let val = prompt(message);
+    if (val == null) return null;
+    return parseFloat(val);
+}
 
-// Проверка валидации
-expenseTracker.addExpense("", -100, "");
+function showMenu() {
+    let text = "";
+    text += "Всего расходов: " + expenses.length + "\n\n";
+    text += "1. Добавить расход\n";
+    text += "2. Показать все расходы\n";
+    text += "3. Показать общую сумму\n";
+    text += "4. Поиск по категории\n";
+    text += "5. Поиск по названию\n";
+    text += "6. Удалить по ID\n";
+    text += "7. Статистика по категориям\n";
+    text += "0. Выход\n\n";
+    text += "Выберите действие (0-7):";
+    return prompt(text);
+}
 
-// Выводим всё
-expenseTracker.printAllExpenses();
+function handleChoice(choice) {
+    switch (choice) {
+        case "1":
+            let title = prompt("Введите название расхода:");
+            if (title == null || title == "") {
+                alert("Название не может быть пустым");
+                break;
+            }
+            let amount = getNumber("Введите сумму:");
+            if (amount == null || isNaN(amount) || amount <= 0) {
+                alert("Сумма должна быть положительным числом");
+                break;
+            }
+            let category = prompt("Введите категорию:");
+            if (category == null || category == "") {
+                alert("Категория не может быть пустой");
+                break;
+            }
+            expenseTracker.addExpense(title, amount, category);
+            break;
 
-// Считаем общую сумму
-expenseTracker.getTotalAmount();
+        case "2":
+            printAllExpenses();
+            break;
 
-// Фильтруем по категории "Игры"
-expenseTracker.getExpensesByCategory("Игры");
+        case "3":
+            getTotalAmount();
+            break;
 
-// Ищем расход
-expenseTracker.findExpenseByTitle("стим");
+        case "4":
+            let cat = prompt("Введите категорию для поиска:");
+            if (cat != null && cat != "") {
+                getExpensesByCategory(cat);
+            }
+            break;
 
-// Статистика
-expenseTracker.getCategoryStats();
+        case "5":
+            let search = prompt("Введите текст для поиска:");
+            if (search != null && search != "") {
+                findExpenseByTitle(search);
+            }
+            break;
 
-// Удаляем расход
-expenseTracker.deleteExpense(4);
+        case "6":
+            let id = getNumber("Введите ID для удаления:");
+            if (id != null && !isNaN(id)) {
+                expenseTracker.deleteExpenseById(id);
+            }
+            break;
 
-// Проверяем список после удаления
-expenseTracker.printAllExpenses();
+        case "7":
+            expenseTracker.printCategoryStats();
+            break;
+
+        case "0":
+            alert("Программа завершена");
+            return false;
+
+        default:
+            alert("Неверный выбор. Введите число от 0 до 7");
+    }
+    return true;
+}
+
+while (true) {
+    let choice = showMenu();
+    if (choice === null) break;
+    if (!handleChoice(choice)) break;
+}
+
+window.expenseTracker = expenseTracker;
